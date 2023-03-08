@@ -16,6 +16,11 @@ import psutil
 import sys
 
 
+OPTIMIZERS_LIST = ('Adadelta', 'Adagrad', 'Adam', 'AdamW', 'SparseAdam', 'Adamax', 'ASGD', 'SGD', 'RAdam', 'Rprop',
+                    'RMSprop', 'NAdam', 'LBFGS',)
+LOSSES_LIST = ("CrossEntropyLoss", "BCELoss", "MSELoss", "L1Loss", "SmoothL1Loss", "KLDivLoss", "CosineEmbeddingLoss",
+                "TripletMarginLoss", "HingeEmbeddingLoss", "MultiMarginLoss", )
+
 class CustomImageDataset(Dataset):
     def __init__(self, dataset_input_storage, dataset_label_storage, transform=None, target_transform=None):
         self.dataset_input_storage = dataset_input_storage
@@ -91,15 +96,15 @@ def start_training(label_dir, img_dir, out_dir, log_path, train_part, loss_fn, l
     model = UNet3D(1, 1).to(device)
     print(model)
 
-    if loss_fn == 'l1loss':
-        loss_fn = nn.L1Loss()
+    if loss_fn in LOSSES_LIST:
+        loss_fn = getattr(nn, loss_fn)()
     else:
         raise NotImplementedError()
 
     loss_fn = loss_fn.to(device)
 
-    if optimizer == 'adam':
-        optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
+    if optimizer in OPTIMIZERS_LIST:
+        optimizer = getattr(torch.optim, optimizer)(model.parameters(), lr=learning_rate)
     else:
         raise NotImplementedError()
 
