@@ -2,7 +2,7 @@ import json
 import inspect
 import argparse
 
-from Unet3D_AlAu_normal_enchanced import start_training
+from Unet3D_AlAu_normal_improved import start_training
 
 # Create the parser
 parser = argparse.ArgumentParser(description='A script that takes in arguments from the command line or a config file.')
