@@ -1,0 +1,16 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: Debug training_script.py",
+            "type": "python",
+            "request": "launch",
+            "program": "training_script.py",
+            "console": "integratedTerminal",
+            "args": [
+                "--config",
+                "config.json"
+            ]
+        }
+    ]
+}

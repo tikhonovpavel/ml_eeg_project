@@ -1,0 +1,8 @@
+{
+    "label_dir": "AlAu_data/perl_2500ex/3d_structures",
+    "img_dir": "AlAu_data/raz_2500ex/3d_structures",
+    "out_dir": "results/loss_adj/L1",
+    "log_path": "results/loss_adj/L1/test.txt",
+
+    "train_part": 0.8
+}
