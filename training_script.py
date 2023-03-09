@@ -14,6 +14,7 @@ parser.add_argument('--experiment_description', type=str, help='Human readable d
 parser.add_argument('--label_dir', type=str, help='Path to the label directory')
 parser.add_argument('--img_dir', type=str, help='Path to the image directory')
 parser.add_argument('--out_dir', type=str, help='Path to the output directory')
+parser.add_argument('--model', type=str, default='Unet3D', help='CNN architecture')
 parser.add_argument('--log_path', type=str, help='Path to the log file')
 parser.add_argument('--loss_fn', type=str, default='L1Loss', help='Type of loss function')
 parser.add_argument('--learning_rate', type=float, default=1e-3, help='Learning rate for the optimizer')
