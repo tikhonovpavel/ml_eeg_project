@@ -78,3 +78,11 @@ class UNet3D(Abstract3DUNet):
                                      is_segmentation=is_segmentation,
                                      conv_padding=conv_padding,
                                      **kwargs)
+        
+        
+        
+        
+        
+        
+# VNet
+
