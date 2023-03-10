@@ -1,0 +1,19 @@
+Start training with the following configuration:
+
+label_dir: AlAu_data/perl_2500ex/3d_structures
+img_dir: AlAu_data/raz_2500ex/3d_structures
+out_dir: results/loss_adj/L1
+log_dir: logs/
+train_part: 0.8
+config: config.json
+model: Unet3D
+loss_fn: L1Loss
+learning_rate: 0.001
+epochs: 100
+batch_size: 32
+optimizer: Adam
+decay: 0.0
+log_path: logs/log_2023-03-10_19-03-05_5.txt
+--------------------------------------------------
+[2023-03-10_19-03-29]: hoba1
+[2023-03-10_19-03-29]: hoba2

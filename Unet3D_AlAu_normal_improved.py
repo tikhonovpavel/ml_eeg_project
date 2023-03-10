@@ -5,6 +5,8 @@ from datetime import datetime
 
 import os
 
+import inspect
+
 import numpy as np
 from torch.utils.data import Dataset
 
@@ -20,6 +22,8 @@ OPTIMIZERS_LIST = ('Adadelta', 'Adagrad', 'Adam', 'AdamW', 'SparseAdam', 'Adamax
                     'RMSprop', 'NAdam', 'LBFGS',)
 LOSSES_LIST = ("CrossEntropyLoss", "BCELoss", "MSELoss", "L1Loss", "SmoothL1Loss", "KLDivLoss", "CosineEmbeddingLoss",
                 "TripletMarginLoss", "HingeEmbeddingLoss", "MultiMarginLoss", )
+DATE_FORMAT = '%Y-%m-%d_%H-%m-%S'
+
 
 class CustomImageDataset(Dataset):
     def __init__(self, dataset_input_storage, dataset_label_storage, transform=None, target_transform=None):
@@ -41,9 +45,17 @@ class CustomImageDataset(Dataset):
         return image, label
 
 
+def log_write(text, log_path):
+    with open(log_path, 'a') as log:
+        log.write(f'[{datetime.now().strftime(DATE_FORMAT)}]: {text}\n')
+        
+
 def start_training(label_dir, img_dir, out_dir, log_path, train_part, loss_fn, learning_rate, epochs, batch_size, optimizer, decay):
     dataset_input_storage = []
     dataset_label_storage = []
+
+    log_write('hoba1', log_path)
+    log_write('hoba2', log_path)
 
     for counter, (img, label) in tqdm(enumerate(zip(os.listdir(img_dir), os.listdir(label_dir))), total=len(os.listdir(img_dir))):
         with np.load(os.path.join(img_dir, img)) as img:
@@ -139,8 +151,7 @@ def start_training(label_dir, img_dir, out_dir, log_path, train_part, loss_fn, l
         print('LOSS train {} test {}'.format(avg_loss, avg_tloss))
         print('IoU test 1: {}, 2: {}'.format(avg_IoU_1, avg_IoU_2))
 
-        with open(log_path, 'a') as log:
-            log.write(f'{avg_tloss},{avg_IoU_1},{avg_IoU_2}\n')
+        log_write(f'{avg_tloss},{avg_IoU_1},{avg_IoU_2}', log_path)
 
         if epoch % 10 == 9:
             torch.save(model.state_dict(), os.path.join(out_dir, 'final_model_{}_{}.pt'.format(timestamp, epoch)))
@@ -175,8 +186,8 @@ def train_one_epoch(dataloader, model, optimizer, loss_fn, log_path, device):
             print('  sample {} loss: {}'.format(batch + 1, last_loss))
             last_IoU_1 = running_IoU[0] / (batch + 1)  # loss per batch
             last_IoU_2 = running_IoU[1] / (batch + 1)  # loss per batch
-    with open(log_path, 'a') as log:
-        log.write(f'{last_loss},{last_IoU_1},{last_IoU_2}\n')
+    
+    log_write(f'{last_loss},{last_IoU_1},{last_IoU_2}')
     print('  sample {} IoU 1: {}, 2: {}'.format(batch + 1, last_IoU_1, last_IoU_2))
 
     return last_loss
