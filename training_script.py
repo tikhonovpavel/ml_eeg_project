@@ -4,7 +4,7 @@ import argparse
 import os
 import datetime
 
-from Unet3D_AlAu_normal_improved import start_training, DATE_FORMAT
+from train_val import start_training, DATE_FORMAT
 
 # Create the parser
 parser = argparse.ArgumentParser(description='A script that takes in arguments from the command line or a config file.')
