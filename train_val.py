@@ -21,6 +21,7 @@ OPTIMIZERS_LIST = ('Adadelta', 'Adagrad', 'Adam', 'AdamW', 'SparseAdam', 'Adamax
                     'RMSprop', 'NAdam', 'LBFGS',)
 LOSSES_LIST = ("CrossEntropyLoss", "BCELoss", "MSELoss", "L1Loss", "SmoothL1Loss", "KLDivLoss", "CosineEmbeddingLoss",
                 "TripletMarginLoss", "HingeEmbeddingLoss", "MultiMarginLoss", )
+DATE_FORMAT = '%Y-%m-%d_%H-%m-%S'
 
 class CustomImageDataset(Dataset):
     def __init__(self, dataset_input_storage, dataset_label_storage, transform=None, target_transform=None):
