@@ -4,6 +4,7 @@ from torch.utils.data import DataLoader
 from datetime import datetime
 
 import os
+import random
 
 import numpy as np
 from torch.utils.data import Dataset
@@ -44,16 +45,19 @@ class CustomImageDataset(Dataset):
 def start_training(label_dir, img_dir, out_dir, log_path, train_part, model, loss_fn, learning_rate, epochs, batch_size, optimizer, decay, data_limit):
     dataset_input_storage = []
     dataset_label_storage = []
+    
+    random.seed(10)
 
-    for counter, (img, label) in tqdm(enumerate(zip(os.listdir(img_dir), os.listdir(label_dir))), total=len(os.listdir(img_dir))):
+    counter = 0
+    while counter < data_limit:
+        img, label = random.choice(list(zip(os.listdir(img_dir), os.listdir(label_dir))))
         with np.load(os.path.join(img_dir, img)) as img:
-            image = np.expand_dims(img['arr_0'], axis=0)
-            dataset_input_storage.append(image)
+                image = np.expand_dims(img['arr_0'], axis=0)
+                dataset_input_storage.append(image)
         with np.load(os.path.join(label_dir, label)) as label:
             image = np.expand_dims(label['arr_0'], axis=0)
             dataset_label_storage.append(image)
-        if counter == data_limit:
-            break
+        counter +=1
 
 
 
