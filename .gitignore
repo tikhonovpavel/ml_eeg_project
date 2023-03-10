@@ -5,3 +5,4 @@ __pycache__
 pytorch-3dunet
 Razorenova_128-eeg1005_ico4-dip_ico4-bem
 AR_head_mfem.vtk
+logs
