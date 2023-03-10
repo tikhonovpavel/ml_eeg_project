@@ -52,8 +52,8 @@ def start_training(label_dir, img_dir, out_dir, log_path, train_part, model, los
     while counter < data_limit:
         img, label = random.choice(list(zip(os.listdir(img_dir), os.listdir(label_dir))))
         with np.load(os.path.join(img_dir, img)) as img:
-                image = np.expand_dims(img['arr_0'], axis=0)
-                dataset_input_storage.append(image)
+            image = np.expand_dims(img['arr_0'], axis=0)
+            dataset_input_storage.append(image)
         with np.load(os.path.join(label_dir, label)) as label:
             image = np.expand_dims(label['arr_0'], axis=0)
             dataset_label_storage.append(image)
