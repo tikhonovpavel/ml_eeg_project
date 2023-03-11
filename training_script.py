@@ -25,6 +25,7 @@ parser.add_argument('--epochs', type=float, default=100, help='Number of epochs'
 parser.add_argument('--batch_size', type=int, default=32, help='Batch size for training')
 parser.add_argument('--optimizer', type=str, default='Adam', help='Type of optimizer')
 parser.add_argument('--decay', type=float, default=0.0, help='Decay rate for the optimizer')
+parser.add_argument('--data_limit', type=float, default=4000, help='Dataset vplume')
 
 # Parse the arguments
 args = parser.parse_args()
