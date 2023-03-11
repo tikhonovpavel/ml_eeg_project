@@ -1,7 +1,7 @@
 import torch
 from torch import nn
-from pytorch3dunet.unet3d.buildingblocks import DoubleConv, create_encoders, create_decoders
-from pytorch3dunet.unet3d.utils import number_of_features_per_level
+from predictor.buildingblocks import DoubleConv, create_encoders, create_decoders
+from predictor.utils import number_of_features_per_level
 import torch.nn.functional as F
 
 
