@@ -6,16 +6,17 @@ from datetime import datetime
 import os
 import random
 
+from torch.optim.lr_scheduler import ExponentialLR
 import numpy as np
 from torch.utils.data import Dataset
 
 from tqdm import tqdm
-
 from models import UNet3D, VNet
 
 import psutil
 import sys
-
+from CustomImageDataset import CustomImageDataset
+from predict_set import predict_set
 
 OPTIMIZERS_LIST = ('Adadelta', 'Adagrad', 'Adam', 'AdamW', 'SparseAdam', 'Adamax', 'ASGD', 'SGD', 'RAdam', 'Rprop',
                     'RMSprop', 'NAdam', 'LBFGS',)
@@ -23,27 +24,9 @@ LOSSES_LIST = ("CrossEntropyLoss", "BCELoss", "MSELoss", "L1Loss", "SmoothL1Loss
                 "TripletMarginLoss", "HingeEmbeddingLoss", "MultiMarginLoss", )
 DATE_FORMAT = '%Y-%m-%d_%H-%m-%S'
 
-class CustomImageDataset(Dataset):
-    def __init__(self, dataset_input_storage, dataset_label_storage, transform=None, target_transform=None):
-        self.dataset_input_storage = dataset_input_storage
-        self.dataset_label_storage = dataset_label_storage
-        self.transform = transform
-        self.target_transform = target_transform
-
-    def __len__(self):
-        return len(self.dataset_input_storage)
-
-    def __getitem__(self, idx):
-        image = self.dataset_input_storage[idx]
-        label = self.dataset_label_storage[idx]
-        if self.transform:
-            image = self.transform(image)
-        if self.target_transform:
-            label = self.target_transform(label)
-        return image, label
 
 
-def start_training(label_dir, img_dir, out_dir, log_path, train_part, model, loss_fn, learning_rate, epochs, batch_size, optimizer, decay, data_limit):
+def start_training(label_dir, img_dir, out_dir, log_path, train_part, model, loss_fn, learning_rate, gamma, epochs, batch_size, optimizer, decay, data_limit, set_size):
     dataset_input_storage = []
     dataset_label_storage = []
     
@@ -115,6 +98,8 @@ def start_training(label_dir, img_dir, out_dir, log_path, train_part, model, los
     else:
         raise NotImplementedError()
 
+    scheduler = ExponentialLR(optimizer, gamma=gamma)
+
     # logger inicialisation
     timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
     # main train/val cycle
@@ -125,6 +110,7 @@ def start_training(label_dir, img_dir, out_dir, log_path, train_part, model, los
         model.train(True)
         avg_loss = train_one_epoch(train_dataloader, model, optimizer, loss_fn, log_path, device)
 
+        scheduler.step()
         # We don't need gradients on to do reporting
         model.train(False)
 
@@ -148,7 +134,12 @@ def start_training(label_dir, img_dir, out_dir, log_path, train_part, model, los
         if epoch % 10 == 9:
             torch.save(model.state_dict(), os.path.join(out_dir, 'final_model_{}_{}.pt'.format(timestamp, epoch)))
 
-    torch.save(model.state_dict(), os.path.join(out_dir, 'final_model_{}_{}.pt'.format(timestamp, epoch)))
+    model_name = os.path.join(out_dir, 'final_model_{}_{}.pt'.format(timestamp, epoch))
+    torch.save(model.state_dict(), model_name)
+
+
+    predict_set(train_dataloader, model_name, label, out_dir, set_size=set_size)
+    predict_set(test_dataloader, model_name, label, out_dir, set_size=set_size)
 
 
 # training function

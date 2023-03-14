@@ -1,18 +1,10 @@
 {
+    "predict_only": "True",
     "label_dir": "/beegfs/home/andrei.kalinichenko/ml_eeg_hyperparameters_gridsearch/AUGMENTATION-None-20230311T043646Z-001/AUGMENTATION-None/dipoles",
     "img_dir": "/beegfs/home/andrei.kalinichenko/ml_eeg_hyperparameters_gridsearch/AUGMENTATION-None-20230311T043646Z-001/AUGMENTATION-None/electrodes",
     "out_dir": "/beegfs/home/andrei.kalinichenko/ml_eeg_hyperparameters_gridsearch/models_out",
-    "log_dir": "/beegfs/home/andrei.kalinichenko/ml_eeg_hyperparameters_gridsearch/logs",
     "model": "Unet3D",
-    "loss_fn": "MSELoss",
-    "learning_rate": 0.001,
-    "gamma": 0.99,
-    "epochs": 150,
-    "batch_size": 10,
-    "optimizer": "Adam",
-    "data_limit": 800,
+    "model_name": "/beegfs/home/andrei.kalinichenko/ml_eeg_hyperparameters_gridsearch/previous version/models_out/final_model_20230312_222807_149.pt",
     "train_part": 0.8,
-    "set_size": 10,
-    "predict_only": "False"
-    
+    "data_limit": 800
 }

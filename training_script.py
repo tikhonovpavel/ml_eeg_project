@@ -3,8 +3,12 @@ import inspect
 import argparse
 import os
 import datetime
+from distutils.util import strtobool
 
 from train_val import start_training, DATE_FORMAT
+from predict_set import predict_set
+import sys
+
 
 # Create the parser
 parser = argparse.ArgumentParser(description='A script that takes in arguments from the command line or a config file.')
@@ -16,16 +20,20 @@ parser.add_argument('--experiment_description', type=str, help='Human readable d
 parser.add_argument('--label_dir', type=str, help='Path to the label directory')
 parser.add_argument('--img_dir', type=str, help='Path to the image directory')
 parser.add_argument('--out_dir', type=str, help='Path to the output directory')
-parser.add_argument('--log_dir', type=str, default='logs/', help='Path to the log directory')
-parser.add_argument('--model', type=str, default='Unet3D', help='CNN architecture')
-parser.add_argument('--loss_fn', type=str, default='L1Loss', help='Type of loss function')
-parser.add_argument('--learning_rate', type=float, default=1e-3, help='Learning rate for the optimizer')
-parser.add_argument('--train_part', type=float, default=0.8, help='...')
-parser.add_argument('--epochs', type=float, default=100, help='Number of epochs')
-parser.add_argument('--batch_size', type=int, default=32, help='Batch size for training')
-parser.add_argument('--optimizer', type=str, default='Adam', help='Type of optimizer')
-parser.add_argument('--decay', type=float, default=0.0, help='Decay rate for the optimizer')
-parser.add_argument('--data_limit', type=float, default=4000, help='Dataset vplume')
+parser.add_argument('--log_dir', type=str, help='Path to the log directory')
+parser.add_argument('--model', type=str, help='CNN architecture')
+parser.add_argument('--loss_fn', type=str, help='Type of loss function')
+parser.add_argument('--learning_rate', type=float, help='Learning rate for the optimizer')
+parser.add_argument('--gamma', type=float, help='Scheduler parameter')
+parser.add_argument('--train_part', type=float, help='...')
+parser.add_argument('--epochs', type=float, help='Number of epochs')
+parser.add_argument('--batch_size', type=int, help='Batch size for training')
+parser.add_argument('--optimizer', type=str, help='Type of optimizer')
+parser.add_argument('--decay', type=float, help='Decay rate for the optimizer')
+parser.add_argument('--data_limit', type=float, help='Dataset vplume')
+parser.add_argument('--set_size', type=int, help='How many images to predict as examples')
+parser.add_argument('--predict_only', type=lambda x:bool(strtobool(x)), nargs='?', help='Perform only prediction')
+parser.add_argument('--model_name', type=str, help='Saved model checkpoint')
 
 # Parse the arguments
 args = parser.parse_args()
@@ -39,6 +47,12 @@ if args.config:
 # Replace the config properties if the correspondig command lines are specified
 config.update({k: v for k, v in vars(args).items() if v is not None})  # {**args, **config}
 
+if config['predict_only']:
+    prediction_func_signature = inspect.signature(predict_set)
+    filtered_config = {k: config[k] for k in prediction_func_signature.parameters.keys() if k in config.keys()}
+    predict_set(**filtered_config)
+    sys.exit()
+    
 if not os.path.exists(args.log_dir):
     os.makedirs(args.log_dir)
 
@@ -65,5 +79,9 @@ with open(config['log_path'], 'a') as log:
         log.write(f'{k}: {v}\n')
     log.write('-' * 50 + '\n')
 
+
+
 # print(config.keys() - filtered_config.keys())
 start_training(**filtered_config)
+
+
