@@ -82,7 +82,7 @@ def start_training(label_dir, img_dir, out_dir, log_path, train_part, model, los
         model = UNet3D(1, 1, final_sigmoid=False, f_maps=64, layer_order='cr',
                  num_levels=4, is_segmentation=False, conv_padding=1).to(device)
     else:
-        model = VNet(1, 1).to(device)
+        model = VNet().to(device)
     
     print(model)
 

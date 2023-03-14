@@ -228,7 +228,7 @@ def deconv3d_as_up(in_channels, out_channels, kernel_size=2, stride=2):
 
 class output(nn.Module):
     def __init__(self, in_channels, out_channels):
-        super(softmax_out, self).__init__()
+        super(output, self).__init__()
         self.conv_1 = nn.Conv3d(in_channels, out_channels, kernel_size=5, padding=2)
         self.conv_2 = nn.Conv3d(out_channels, out_channels, kernel_size=1, padding=0)
 
