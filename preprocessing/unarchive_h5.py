@@ -1,7 +1,7 @@
 import h5py
 import numpy as np
 
-# use path to atchived h5
+# use path to archived h5
 h5_file = h5py.File('C:/Users/spaik/Documents/lab/ML_project/dense-162dip_parcell-64_GRID-64_paired_scale-False-2000.h5', 'r')
 dataset = h5_file.get('dense-162dip_parcell-64_GRID-64_paired_scale-False-2000')
 storage = np.array(dataset)
