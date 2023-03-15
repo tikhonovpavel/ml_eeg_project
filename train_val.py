@@ -13,6 +13,8 @@ from torch.utils.data import Dataset
 from tqdm import tqdm
 from models import UNet3D, VNet
 
+import h5py
+
 import psutil
 import sys
 from CustomImageDataset import CustomImageDataset
@@ -26,35 +28,37 @@ DATE_FORMAT = '%Y-%m-%d_%H-%m-%S'
 
 
 
-def start_training(label_dir, img_dir, out_dir, log_path, train_part, model, loss_fn, learning_rate, gamma, epochs, batch_size, optimizer, decay, data_limit, set_size):
-    dataset_input_storage = []
-    dataset_label_storage = []
+def start_training(h5_file_path, out_dir, log_path, train_part, model, loss_fn, learning_rate, epochs, batch_size, optimizer):
     
-    random.seed(10)
+    class h5_dataset(Dataset):
+        def __init__(self, h5_file_path):
+            self.h5_file = h5py.File(h5_file_path, 'r')
+            self.dataset = self.h5_file.get(list(self.h5_file.keys())[0])
 
-    counter = 0
-    while counter < data_limit:
-        img, label = random.choice(list(zip(os.listdir(img_dir), os.listdir(label_dir))))
-        with np.load(os.path.join(img_dir, img)) as img:
-            image = np.expand_dims(img['arr_0'], axis=0)
-            dataset_input_storage.append(image)
-        with np.load(os.path.join(label_dir, label)) as label:
-            image = np.expand_dims(label['arr_0'], axis=0)
-            dataset_label_storage.append(image)
-        counter +=1
+        def __len__(self):
+            return len(self.dataset)
 
+        def __getitem__(self, idx):
+
+            electrodes = self.dataset[idx, 0]
+            dipoles = self.dataset[idx, 1]
+
+            electrodes = np.expand_dims(electrodes, axis=0)
+            dipoles = np.expand_dims(dipoles, axis=0)
+
+            return electrodes, dipoles
 
 
     generator = torch.Generator()
     generator.manual_seed(0)
 
-    dataset = CustomImageDataset(dataset_input_storage, dataset_label_storage)
-    train_part = round(len(dataset_input_storage) * train_part)
+    dataset = h5_dataset(h5_file_path)
+    train_part = round(len(dataset) * train_part)
     train_dataset, test_dataset = torch.utils.data.random_split(dataset,
-                                                                [train_part, len(dataset_input_storage) - train_part],
+                                                                [train_part, len(dataset) - train_part],
                                                                 generator=generator)
     print(
-        f'Dataset {len(dataset_input_storage)}\nTrain set : {train_part} images\nValidation set : {len(dataset_input_storage) - train_part} images')
+        f'Dataset {len(dataset)}\nTrain set : {train_part} images\nValidation set : {len(dataset) - train_part} images')
 
     train_dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
     test_dataloader = DataLoader(test_dataset, batch_size=batch_size, shuffle=True)
