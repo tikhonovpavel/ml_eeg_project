@@ -17,8 +17,7 @@ parser = argparse.ArgumentParser(description='A script that takes in arguments f
 parser.add_argument('--config', type=str, help='Path to the config file')
 
 parser.add_argument('--experiment_description', type=str, help='Human readable description of the experiment')
-parser.add_argument('--label_dir', type=str, help='Path to the label directory')
-parser.add_argument('--img_dir', type=str, help='Path to the image directory')
+parser.add_argument('--h5_file_path', type=str, help='Path to the h5 file (faster to use unarchived)')
 parser.add_argument('--out_dir', type=str, help='Path to the output directory')
 parser.add_argument('--log_dir', type=str, help='Path to the log directory')
 parser.add_argument('--model', type=str, help='CNN architecture')
