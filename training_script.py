@@ -55,16 +55,16 @@ if config['predict_only']:
     predict_set(**filtered_config)
     sys.exit()
     
-if not os.path.exists(config.log_dir):
-    os.makedirs(config.log_dir)
+if not os.path.exists(config['log_dir']):
+    os.makedirs(config['log_dir'])
 
-if not os.path.isdir(config.log_dir):
+if not os.path.isdir(config['log_dir']):
     print('You should specify a directory for logs, not the file path')
     raise Exception()
 
-log_number = max([int(x.split('_')[-1].split('.')[0]) for x in os.listdir(config.log_dir)], default=0) + 1
+log_number = max([int(x.split('_')[-1].split('.')[0]) for x in os.listdir(config['log_dir'])], default=0) + 1
 log_filename = f'log_{datetime.datetime.now().strftime(DATE_FORMAT)}_{log_number}.txt'
-config['log_path'] = os.path.join(config.log_dir, log_filename)
+config['log_path'] = os.path.join(config['log_dir'], log_filename)
 
 print('Start training with the following configuration:')
 print()
