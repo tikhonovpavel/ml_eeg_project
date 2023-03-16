@@ -36,10 +36,10 @@ class Abstract3DUNet(nn.Module):
             if final_sigmoid:
                 self.final_activation = nn.Sigmoid()
             else:
-                self.final_activation = None
+                self.final_activation = nn.Softmax()
         else:
             # regression problem
-            self.final_activation = None
+            self.final_activation = nn.Softmax()
 
     def forward(self, x):
         # encoder part
@@ -63,7 +63,7 @@ class Abstract3DUNet(nn.Module):
 
         # apply final_activation (i.e. Sigmoid or Softmax) only during prediction. During training the network outputs logits
         if not self.training and self.final_activation is not None:
-            x = self.final_activation(x)
+            x = self.final_activation(nn.ReLU(x))
         return x
 
 
@@ -274,4 +274,5 @@ class VNet(nn.Module):
         deconv = self.deconv_3(conv_3, deconv)
         deconv = self.deconv_2(conv_2, deconv)
         deconv = self.deconv_1(conv_1, deconv)
+        deconv = nn.Softmax(deconv)
         return self.out(deconv)
