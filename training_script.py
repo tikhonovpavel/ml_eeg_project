@@ -42,7 +42,7 @@ config = {}
 if args.config:
     with open(args.config, 'r') as f:
         config = json.load(f)
-    print('Config {args.config} loaded')
+    print(f'Config {args.config} loaded')
 else:
     print('No config specified')
 
