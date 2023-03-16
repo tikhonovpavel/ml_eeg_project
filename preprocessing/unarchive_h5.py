@@ -4,7 +4,7 @@ import argparse
 
 # create argument parser to accept filename
 parser = argparse.ArgumentParser()
-parser.add_argument("filename", help="path to archived h5 file")
+parser.add_argument("--filename", help="path to archived h5 file")
 args = parser.parse_args()
 
 # use path to archived h5
