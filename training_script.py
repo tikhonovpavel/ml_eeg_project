@@ -42,6 +42,9 @@ config = {}
 if args.config:
     with open(args.config, 'r') as f:
         config = json.load(f)
+    print('Config {args.config} loaded')
+else:
+    print('No config specified')
 
 # Replace the config properties if the correspondig command lines are specified
 config.update({k: v for k, v in vars(args).items() if v is not None})  # {**args, **config}
