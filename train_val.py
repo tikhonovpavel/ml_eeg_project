@@ -28,7 +28,7 @@ DATE_FORMAT = '%Y-%m-%d_%H-%m-%S'
 
 
 
-def start_training(h5_file_path, out_dir, log_path, train_part, model, loss_fn, learning_rate, epochs, batch_size, optimizer):
+def start_training(h5_file_path, gamma, out_dir, log_path, train_part, model, loss_fn, learning_rate, epochs, batch_size, optimizer):
     
 
 
