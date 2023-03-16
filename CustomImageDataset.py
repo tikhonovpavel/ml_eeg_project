@@ -1,4 +1,6 @@
 from torch.utils.data import Dataset
+import h5py
+import numpy as np
 
 class CustomImageDataset(Dataset):
     def __init__(self, dataset_input_storage, dataset_label_storage, transform=None, target_transform=None):
