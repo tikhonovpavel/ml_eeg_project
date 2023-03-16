@@ -17,7 +17,7 @@ import h5py
 
 import psutil
 import sys
-from CustomImageDataset import CustomImageDataset
+from CustomImageDataset import h5_dataset
 from predict_set import predict_set
 
 OPTIMIZERS_LIST = ('Adadelta', 'Adagrad', 'Adam', 'AdamW', 'SparseAdam', 'Adamax', 'ASGD', 'SGD', 'RAdam', 'Rprop',
@@ -30,23 +30,7 @@ DATE_FORMAT = '%Y-%m-%d_%H-%m-%S'
 
 def start_training(h5_file_path, out_dir, log_path, train_part, model, loss_fn, learning_rate, epochs, batch_size, optimizer):
     
-    class h5_dataset(Dataset):
-        def __init__(self, h5_file_path):
-            self.h5_file = h5py.File(h5_file_path, 'r')
-            self.dataset = self.h5_file.get(list(self.h5_file.keys())[0])
 
-        def __len__(self):
-            return len(self.dataset)
-
-        def __getitem__(self, idx):
-
-            electrodes = self.dataset[idx, 0]
-            dipoles = self.dataset[idx, 1]
-
-            electrodes = np.expand_dims(electrodes, axis=0)
-            dipoles = np.expand_dims(dipoles, axis=0)
-
-            return electrodes, dipoles
 
 
     generator = torch.Generator()
