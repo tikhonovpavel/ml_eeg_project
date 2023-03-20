@@ -1,7 +1,7 @@
 {
-    "h5_file_path": "/gpfs/data/gpfs0/username/train-162-dip_parcellation-64/dense-162dip_parcell-64_GRID-64_paired_scale-False-2000_unarch.h5",
-    "out_dir": "/beegfs/home/username/ml_eeg_hyperparameters_gridsearch/models_out",
-    "log_dir": "/beegfs/home/username/ml_eeg_hyperparameters_gridsearch/logs",
+    "h5_file_path": "dense-162dip_parcell-64_GRID-64_paired_scale-False-2000_unarch.h5",
+    "out_dir": "models_out",
+    "log_dir": "logs",
     "model": "Unet3D",
     "loss_fn": "MSELoss",
     "learning_rate": 0.001,
@@ -12,6 +12,5 @@
     "data_limit": 800,
     "train_part": 0.8,
     "set_size": 10,
-    "predict_only": "False"
-    
+    "predict_only": 0
 }

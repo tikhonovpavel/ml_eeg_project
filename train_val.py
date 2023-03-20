@@ -28,7 +28,7 @@ DATE_FORMAT = '%Y-%m-%d_%H-%m-%S'
 
 
 
-def start_training(h5_file_path, gamma, out_dir, log_path, train_part, model, loss_fn, learning_rate, epochs, batch_size, optimizer):
+def start_training(h5_file_path, gamma, out_dir, log_path, train_part, model, loss_fn, learning_rate, epochs, batch_size, optimizer, debug_launch):
     
 
 
@@ -37,10 +37,20 @@ def start_training(h5_file_path, gamma, out_dir, log_path, train_part, model, lo
     generator.manual_seed(0)
 
     dataset = h5_dataset(h5_file_path)
-    train_part = round(len(dataset) * train_part)
-    train_dataset, test_dataset = torch.utils.data.random_split(dataset,
-                                                                [train_part, len(dataset) - train_part],
-                                                                generator=generator)
+
+    if debug_launch:
+        train_part = 100
+        test_part = 50
+        leftover = len(dataset) - train_part - test_part
+        train_dataset, test_dataset, _ = torch.utils.data.random_split(dataset,
+                                                                    [train_part, test_part, leftover],
+                                                                    generator=generator)
+
+    else:
+        train_part = round(len(dataset) * train_part)
+        train_dataset, test_dataset = torch.utils.data.random_split(dataset,
+                                                                    [train_part, len(dataset) - train_part],
+                                                                    generator=generator)
     print(
         f'Dataset {len(dataset)}\nTrain set : {train_part} images\nValidation set : {len(dataset) - train_part} images')
 

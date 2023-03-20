@@ -33,6 +33,7 @@ parser.add_argument('--data_limit', type=float, help='Dataset vplume')
 parser.add_argument('--set_size', type=int, help='How many images to predict as examples')
 parser.add_argument('--predict_only', type=lambda x:bool(strtobool(x)), nargs='?', help='Perform only prediction')
 parser.add_argument('--model_name', type=str, help='Saved model checkpoint')
+parser.add_argument('--debug_launch', type=lambda x: bool(strtobool(x)), default=False)
 
 # Parse the arguments
 args = parser.parse_args()
