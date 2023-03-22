@@ -27,7 +27,6 @@ LOSSES_LIST = ("CrossEntropyLoss", "BCELoss", "MSELoss", "L1Loss", "SmoothL1Loss
 DATE_FORMAT = '%Y-%m-%d_%H-%m-%S'
 
 
-
 def start_training(h5_file_path, gamma, out_dir, log_path, train_part, model, loss_fn, learning_rate, epochs, batch_size, optimizer, debug_launch):
     
 
@@ -39,8 +38,8 @@ def start_training(h5_file_path, gamma, out_dir, log_path, train_part, model, lo
     dataset = h5_dataset(h5_file_path)
 
     if debug_launch:
-        train_part = 100
-        test_part = 50
+        train_part = 30
+        test_part = 20
         leftover = len(dataset) - train_part - test_part
         train_dataset, test_dataset, _ = torch.utils.data.random_split(dataset,
                                                                     [train_part, test_part, leftover],
@@ -74,7 +73,6 @@ def start_training(h5_file_path, gamma, out_dir, log_path, train_part, model, lo
 
     device = "cuda:0" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu"
     print(f"Using {device} device")
-
 
     if model == 'Unet3D':
         model = UNet3D(1, 1, final_sigmoid=False, f_maps=64, layer_order='cr',
@@ -113,7 +111,7 @@ def start_training(h5_file_path, gamma, out_dir, log_path, train_part, model, lo
         model.train(False)
 
         running_tloss = 0.
-        for batch, (tinputs, tlabels) in tqdm(enumerate(test_dataloader)):
+        for batch, (tinputs, tlabels) in tqdm(enumerate(test_dataloader), total=len(test_dataloader)):
             tinputs, tlabels = tinputs.to(torch.device(device)), tlabels.to(torch.device(device))
             tinputs = tinputs.float()
             with torch.no_grad():
@@ -135,7 +133,6 @@ def start_training(h5_file_path, gamma, out_dir, log_path, train_part, model, lo
     model_name = os.path.join(out_dir, 'final_model_{}_{}.pt'.format(timestamp, epoch))
     torch.save(model.state_dict(), model_name)
 
-
     predict_set(train_dataloader, model_name, label, out_dir, set_size=set_size)
     predict_set(test_dataloader, model_name, label, out_dir, set_size=set_size)
 
@@ -145,7 +142,7 @@ def train_one_epoch(dataloader, model, optimizer, loss_fn, log_path, device):
     running_loss = 0.
     last_loss = 0.
 
-    for batch, (X, y) in tqdm(enumerate(dataloader)):
+    for batch, (X, y) in tqdm(enumerate(dataloader), total=len(dataloader)):
         X, y = X.to(torch.device(device)), y.to(torch.device(device))
         X = X.float()
 
