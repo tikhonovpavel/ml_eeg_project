@@ -108,7 +108,7 @@ def start_training(h5_file_path, gamma, out_dir, log_path, train_part, model, lo
 
         # Make sure gradient tracking is on, and do a pass over the data
         model.train(True)
-        avg_loss = train_one_epoch(train_dataloader, model, optimizer, loss_fn, log_path, device)
+        avg_loss = train_one_epoch(train_dataloader, model, optimizer, loss_fn, log_path, device, use_wandb)
 
         scheduler.step()
         # We don't need gradients on to do reporting
@@ -148,7 +148,7 @@ def start_training(h5_file_path, gamma, out_dir, log_path, train_part, model, lo
 
 
 # training function
-def train_one_epoch(dataloader, model, optimizer, loss_fn, log_path, device, use_wandb, wandb=None):
+def train_one_epoch(dataloader, model, optimizer, loss_fn, log_path, device, use_wandb):
     running_loss = 0.
     last_loss = 0.
 
