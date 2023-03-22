@@ -166,7 +166,7 @@ def train_one_epoch(dataloader, model, optimizer, loss_fn, log_path, device, use
         running_loss += loss.item()
 
         if use_wandb:
-            wandb.log({'batch_running_loss': loss, 'batch_loss': loss.item()})
+            wandb.log({'batch_running_loss': running_loss, 'batch_loss': loss.item()})
 
         if (batch + 1) % 100 == len(dataloader) % 100:
             last_loss = running_loss / (batch + 1)  # loss per batch
