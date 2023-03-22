@@ -9,6 +9,8 @@ from train_val import start_training, DATE_FORMAT
 from predict_set import predict_set
 import sys
 
+import wandb
+    
 
 # Create the parser
 parser = argparse.ArgumentParser(description='A script that takes in arguments from the command line or a config file.')
@@ -34,6 +36,7 @@ parser.add_argument('--set_size', type=int, help='How many images to predict as 
 parser.add_argument('--predict_only', type=lambda x:bool(strtobool(x)), nargs='?', help='Perform only prediction')
 parser.add_argument('--model_name', type=str, help='Saved model checkpoint')
 parser.add_argument('--debug_launch', type=lambda x: bool(strtobool(x)), default=False)
+parser.add_argument('--use_wandb', type=lambda x: bool(strtobool(x)), default=False)
 
 # Parse the arguments
 args = parser.parse_args()
@@ -85,6 +88,11 @@ with open(config['log_path'], 'a') as log:
 
 
 # print(config.keys() - filtered_config.keys())
+
+if config['use_wandb']:
+    wandb.init(project='ml-eeg', config=config)
+
+
 start_training(**filtered_config)
 
 

@@ -20,6 +20,8 @@ import sys
 from CustomImageDataset import h5_dataset
 from predict_set import predict_set
 
+import wandb
+
 OPTIMIZERS_LIST = ('Adadelta', 'Adagrad', 'Adam', 'AdamW', 'SparseAdam', 'Adamax', 'ASGD', 'SGD', 'RAdam', 'Rprop',
                     'RMSprop', 'NAdam', 'LBFGS',)
 LOSSES_LIST = ("CrossEntropyLoss", "BCELoss", "MSELoss", "L1Loss", "SmoothL1Loss", "KLDivLoss", "CosineEmbeddingLoss",
@@ -27,7 +29,7 @@ LOSSES_LIST = ("CrossEntropyLoss", "BCELoss", "MSELoss", "L1Loss", "SmoothL1Loss
 DATE_FORMAT = '%Y-%m-%d_%H-%m-%S'
 
 
-def start_training(h5_file_path, gamma, out_dir, log_path, train_part, model, loss_fn, learning_rate, epochs, batch_size, optimizer, debug_launch):
+def start_training(h5_file_path, gamma, out_dir, log_path, train_part, model, loss_fn, learning_rate, epochs, batch_size, optimizer, debug_launch, use_wandb):
     
 
 
@@ -98,6 +100,8 @@ def start_training(h5_file_path, gamma, out_dir, log_path, train_part, model, lo
 
     # logger inicialisation
     timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+
+
     # main train/val cycle
     for epoch in range(epochs):
         print('EPOCH {}:'.format(epoch + 1))
@@ -124,11 +128,17 @@ def start_training(h5_file_path, gamma, out_dir, log_path, train_part, model, lo
 
         print('LOSS train {} test {}'.format(avg_loss, avg_tloss))
 
+
         with open(log_path, 'a') as log:
             log.write(f'{avg_tloss}\n')
 
-        if epoch % 10 == 9:
-            torch.save(model.state_dict(), os.path.join(out_dir, 'final_model_{}_{}.pt'.format(timestamp, epoch)))
+        if True:#epoch % 10 == 9:
+            save_file_name = 'final_model_{}_{}.pt'.format(timestamp, epoch)
+
+            if use_wandb:
+                wandb.log({'save_file_name': save_file_name})
+
+            torch.save(model.state_dict(), os.path.join(out_dir, save_file_name))
 
     model_name = os.path.join(out_dir, 'final_model_{}_{}.pt'.format(timestamp, epoch))
     torch.save(model.state_dict(), model_name)
@@ -138,7 +148,7 @@ def start_training(h5_file_path, gamma, out_dir, log_path, train_part, model, lo
 
 
 # training function
-def train_one_epoch(dataloader, model, optimizer, loss_fn, log_path, device):
+def train_one_epoch(dataloader, model, optimizer, loss_fn, log_path, device, use_wandb, wandb=None):
     running_loss = 0.
     last_loss = 0.
 
@@ -154,6 +164,9 @@ def train_one_epoch(dataloader, model, optimizer, loss_fn, log_path, device):
 
         optimizer.step()
         running_loss += loss.item()
+
+        if use_wandb:
+            wandb.log({'batch_running_loss': loss, 'batch_loss': loss.item()})
 
         if (batch + 1) % 100 == len(dataloader) % 100:
             last_loss = running_loss / (batch + 1)  # loss per batch
