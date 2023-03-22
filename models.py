@@ -36,10 +36,10 @@ class Abstract3DUNet(nn.Module):
             if final_sigmoid:
                 self.final_activation = nn.Sigmoid()
             else:
-                self.final_activation = nn.Softmax()
+                self.final_activation = None
         else:
             # regression problem
-            self.final_activation = nn.Softmax()
+            self.final_activation = None
 
     def forward(self, x):
         # encoder part
@@ -63,7 +63,7 @@ class Abstract3DUNet(nn.Module):
 
         # apply final_activation (i.e. Sigmoid or Softmax) only during prediction. During training the network outputs logits
         if not self.training and self.final_activation is not None:
-            x = self.final_activation(nn.ReLU(x))
+            x = self.final_activation(x)
         return x
 
 
@@ -81,10 +81,8 @@ class UNet3D(Abstract3DUNet):
                                      is_segmentation=is_segmentation,
                                      conv_padding=conv_padding,
                                      **kwargs)
-        
-        
-        
-        
+
+
 # VNet
 
 
@@ -116,12 +114,13 @@ class conv3d_x3(nn.Module):
         self.conv_1 = conv3d(in_channels, out_channels)
         self.conv_2 = conv3d(out_channels, out_channels)
         self.conv_3 = conv3d(out_channels, out_channels)
-        self.skip_connection=nn.Conv3d(in_channels,out_channels,1)
+        self.skip_connection = nn.Conv3d(in_channels, out_channels, 1)
 
     def forward(self, x):
         z_1 = self.conv_1(x)
         z_3 = self.conv_3(self.conv_2(z_1))
         return z_3 + self.skip_connection(x)
+
 
 class conv3d_x2(nn.Module):
     """Three serial convs with a residual connection.
@@ -134,7 +133,7 @@ class conv3d_x2(nn.Module):
         super(conv3d_x2, self).__init__()
         self.conv_1 = conv3d(in_channels, out_channels)
         self.conv_2 = conv3d(out_channels, out_channels)
-        self.skip_connection=nn.Conv3d(in_channels,out_channels,1)
+        self.skip_connection = nn.Conv3d(in_channels, out_channels, 1)
 
     def forward(self, x):
         z_1 = self.conv_1(x)
@@ -152,11 +151,12 @@ class conv3d_x1(nn.Module):
     def __init__(self, in_channels, out_channels):
         super(conv3d_x1, self).__init__()
         self.conv_1 = conv3d(in_channels, out_channels)
-        self.skip_connection=nn.Conv3d(in_channels,out_channels,1)
+        self.skip_connection = nn.Conv3d(in_channels, out_channels, 1)
 
     def forward(self, x):
         z_1 = self.conv_1(x)
         return z_1 + self.skip_connection(x)
+
 
 class deconv3d_x3(nn.Module):
     def __init__(self, in_channels, out_channels):
@@ -164,37 +164,39 @@ class deconv3d_x3(nn.Module):
         self.up = deconv3d_as_up(in_channels, out_channels, 2, 2)
         self.lhs_conv = conv3d(out_channels // 2, out_channels)
         self.conv_x3 = nn.Sequential(
-            nn.Conv3d(2*out_channels, out_channels,5,1,2),
+            nn.Conv3d(2 * out_channels, out_channels, 5, 1, 2),
             nn.PReLU(),
-            nn.Conv3d(out_channels, out_channels,5,1,2),
+            nn.Conv3d(out_channels, out_channels, 5, 1, 2),
             nn.PReLU(),
-            nn.Conv3d(out_channels, out_channels,5,1,2),
+            nn.Conv3d(out_channels, out_channels, 5, 1, 2),
             nn.PReLU(),
         )
 
     def forward(self, lhs, rhs):
         rhs_up = self.up(rhs)
         lhs_conv = self.lhs_conv(lhs)
-        rhs_add = torch.cat((rhs_up, lhs_conv),dim=1) 
-        return self.conv_x3(rhs_add)+ rhs_up
+        rhs_add = torch.cat((rhs_up, lhs_conv), dim=1)
+        return self.conv_x3(rhs_add) + rhs_up
+
 
 class deconv3d_x2(nn.Module):
     def __init__(self, in_channels, out_channels):
         super(deconv3d_x2, self).__init__()
         self.up = deconv3d_as_up(in_channels, out_channels, 2, 2)
         self.lhs_conv = conv3d(out_channels // 2, out_channels)
-        self.conv_x2= nn.Sequential(
-            nn.Conv3d(2*out_channels, out_channels,5,1,2),
+        self.conv_x2 = nn.Sequential(
+            nn.Conv3d(2 * out_channels, out_channels, 5, 1, 2),
             nn.PReLU(),
-            nn.Conv3d(out_channels, out_channels,5,1,2),
+            nn.Conv3d(out_channels, out_channels, 5, 1, 2),
             nn.PReLU(),
         )
 
     def forward(self, lhs, rhs):
         rhs_up = self.up(rhs)
         lhs_conv = self.lhs_conv(lhs)
-        rhs_add = torch.cat((rhs_up, lhs_conv),dim=1) 
-        return self.conv_x2(rhs_add)+ rhs_up
+        rhs_add = torch.cat((rhs_up, lhs_conv), dim=1)
+        return self.conv_x2(rhs_add) + rhs_up
+
 
 class deconv3d_x1(nn.Module):
     def __init__(self, in_channels, out_channels):
@@ -202,16 +204,16 @@ class deconv3d_x1(nn.Module):
         self.up = deconv3d_as_up(in_channels, out_channels, 2, 2)
         self.lhs_conv = conv3d(out_channels // 2, out_channels)
         self.conv_x1 = nn.Sequential(
-            nn.Conv3d(2*out_channels, out_channels,5,1,2),
+            nn.Conv3d(2 * out_channels, out_channels, 5, 1, 2),
             nn.PReLU(),
         )
 
     def forward(self, lhs, rhs):
         rhs_up = self.up(rhs)
         lhs_conv = self.lhs_conv(lhs)
-        rhs_add = torch.cat((rhs_up, lhs_conv),dim=1) 
-        return self.conv_x1(rhs_add)+ rhs_up
-        
+        rhs_add = torch.cat((rhs_up, lhs_conv), dim=1)
+        return self.conv_x1(rhs_add) + rhs_up
+
 
 def conv3d_as_pool(in_channels, out_channels, kernel_size=2, stride=2):
     return nn.Sequential(
@@ -240,9 +242,9 @@ class output(nn.Module):
 
 
 class VNet(nn.Module):
-    def __init__(self, in_channels, out_channels):
+    def __init__(self):
         super(VNet, self).__init__()
-        self.conv_1 = conv3d_x1(in_channels, 16)
+        self.conv_1 = conv3d_x1(1, 16)
         self.pool_1 = conv3d_as_pool(16, 32)
         self.conv_2 = conv3d_x2(32, 32)
         self.pool_2 = conv3d_as_pool(32, 64)
@@ -258,7 +260,7 @@ class VNet(nn.Module):
         self.deconv_2 = deconv3d_x2(128, 64)
         self.deconv_1 = deconv3d_x1(64, 32)
 
-        self.out = output(32, out_channels)
+        self.out = output(32, 1)
 
     def forward(self, x):
         conv_1 = self.conv_1(x)
@@ -274,4 +276,5 @@ class VNet(nn.Module):
         deconv = self.deconv_3(conv_3, deconv)
         deconv = self.deconv_2(conv_2, deconv)
         deconv = self.deconv_1(conv_1, deconv)
+        deconv = nn.Softmax(deconv)
         return self.out(deconv)
