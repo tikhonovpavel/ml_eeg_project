@@ -5,16 +5,26 @@
 [link2]
 
 ## How to run
-1. Load model weights and test set:
+* Load model weights and test set:
 
     `gdown --id ...`
 
     `gdown --id ...`
 
-2. Run the script for prediction:
-
+* Run the script for prediction:
+   
    `mkdir output`      
 
-    `python training_script.py --model "VNet" --model_name "checkpoint" --out_dir "output" --predict_only 1`
+   `python training_script.py --model "VNet" --model_name "checkpoint.h5" --out_dir "output" --predict_only 1`
    
-   `python visualize.py`
+   `python visualize.pybb--model_name "checkpoint.h5"`
+
+## Train & test dataset
+
+Download:
+
+`gdown --id 1hRmT670aQNItDEGuEaUPvpphw6aDxNZu`
+
+Unarchive:
+
+`python preprocessing/unarchive_h5.py --filename "dense-162dip_parcell-64_GRID-64_paired_scale-False-2000.h5"`
