@@ -1,11 +1,9 @@
 import h5py
 import argparse
-import numpy as np
-
-
 
 
 parser = argparse.ArgumentParser()
+
 parser.add_argument("--filename", help="path to archived h5 file")
 parser.add_argument("--chunk_size", default=500)
 args = parser.parse_args()

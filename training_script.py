@@ -26,17 +26,17 @@ parser.add_argument('--model', type=str, help='CNN architecture')
 parser.add_argument('--loss_fn', type=str, help='Type of loss function')
 parser.add_argument('--learning_rate', type=float, help='Learning rate for the optimizer')
 parser.add_argument('--gamma', type=float, help='Scheduler parameter')
-parser.add_argument('--train_part', type=float, help='...')
+parser.add_argument('--train_part', type=float, help='Proportion of the dataset to use for training')
 parser.add_argument('--epochs', type=float, help='Number of epochs')
 parser.add_argument('--batch_size', type=int, help='Batch size for training')
 parser.add_argument('--optimizer', type=str, help='Type of optimizer')
 parser.add_argument('--decay', type=float, help='Decay rate for the optimizer')
-parser.add_argument('--data_limit', type=float, help='Dataset vplume')
+parser.add_argument('--data_limit', type=float, help='Dataset volume')
 parser.add_argument('--set_size', type=int, help='How many images to predict as examples')
 parser.add_argument('--predict_only', type=lambda x:bool(strtobool(x)), nargs='?', help='Perform only prediction')
 parser.add_argument('--model_name', type=str, help='Saved model checkpoint')
-parser.add_argument('--debug_launch', type=lambda x: bool(strtobool(x)), default=False)
-parser.add_argument('--use_wandb', type=lambda x: bool(strtobool(x)), default=False)
+parser.add_argument('--debug_launch', type=lambda x: bool(strtobool(x)), default=False, help='Set to true for debugging')
+parser.add_argument('--use_wandb', type=lambda x: bool(strtobool(x)), default=False, help='Set to true to enable wandb logging')
 
 # Parse the arguments
 args = parser.parse_args()
@@ -85,9 +85,6 @@ with open(config['log_path'], 'a') as log:
         log.write(f'{k}: {v}\n')
     log.write('-' * 50 + '\n')
 
-
-
-# print(config.keys() - filtered_config.keys())
 
 if config['use_wandb']:
     wandb.init(project='ml-eeg', config=config)
