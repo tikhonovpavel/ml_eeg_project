@@ -2,6 +2,7 @@ from torch.utils.data import Dataset
 import h5py
 import numpy as np
 
+
 class CustomImageDataset(Dataset):
     def __init__(self, dataset_input_storage, dataset_label_storage, transform=None, target_transform=None):
         self.dataset_input_storage = dataset_input_storage
@@ -20,10 +21,9 @@ class CustomImageDataset(Dataset):
         if self.target_transform:
             label = self.target_transform(label)
         return image, label
-    
-    
-    
-class h5_dataset(Dataset):
+
+
+class H5Dataset(Dataset):
     def __init__(self, h5_file_path):
         self.h5_file = h5py.File(h5_file_path, 'r')
         self.dataset = self.h5_file.get(list(self.h5_file.keys())[0])
@@ -32,7 +32,6 @@ class h5_dataset(Dataset):
         return len(self.dataset)
 
     def __getitem__(self, idx):
-
         electrodes = self.dataset[idx, 0]
         dipoles = self.dataset[idx, 1]
 

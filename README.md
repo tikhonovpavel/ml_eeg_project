@@ -5,7 +5,7 @@
 [link2]
 
 ## How to run
-* Load model weights and test set:
+* Load model weights and sample set:
 
     `gdown --id ...`
 

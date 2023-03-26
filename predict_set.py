@@ -7,15 +7,14 @@ import random
 import numpy as np
 from torch.utils.data import Dataset
 
-
 from models import UNet3D, VNet
-from CustomImageDataset import h5_dataset
+from CustomImageDataset import H5Dataset
 
 DATE_FORMAT = '%Y-%m-%d_%H-%m-%S'
 
+
 def predict_set(model, model_name, out_dir, data_loader=None, label=None, set_size=10, data_limit=800,
                 predict_only=False, h5_file_path=None, train_part=None):
-
     def predict(data_loader, model, label, out_dir):
         with torch.no_grad():
             for i, (input, y_true) in enumerate(data_loader):
@@ -26,7 +25,7 @@ def predict_set(model, model_name, out_dir, data_loader=None, label=None, set_si
 
     def create_loaders(h5_file_path, train_part):
 
-        dataset = h5_dataset(h5_file_path)
+        dataset = H5Dataset(h5_file_path)
         train_part = round(len(dataset) * train_part)
         train_dataset, test_dataset = torch.utils.data.random_split(dataset,
                                                                     [train_part, len(dataset) - train_part],
@@ -38,7 +37,7 @@ def predict_set(model, model_name, out_dir, data_loader=None, label=None, set_si
 
     if model == 'Unet3D':
         model = UNet3D(1, 1, final_sigmoid=False, f_maps=64, layer_order='cr',
-                 num_levels=4, is_segmentation=False, conv_padding=1).to(torch.device('cuda:0'))
+                       num_levels=4, is_segmentation=False, conv_padding=1).to(torch.device('cuda:0'))
     else:
         model = VNet(1, 1).to(torch.device('cuda:0'))
 
@@ -52,5 +51,3 @@ def predict_set(model, model_name, out_dir, data_loader=None, label=None, set_si
         predict(test_dataloader, model, 'test', out_dir)
     else:
         predict(data_loader, model, label, out_dir)
-
-

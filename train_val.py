@@ -17,7 +17,7 @@ import h5py
 
 import psutil
 import sys
-from CustomImageDataset import h5_dataset
+from CustomImageDataset import H5Dataset
 from predict_set import predict_set
 
 import wandb
@@ -37,7 +37,7 @@ def start_training(h5_file_path, gamma, out_dir, log_path, train_part, model, lo
     generator = torch.Generator()
     generator.manual_seed(0)
 
-    dataset = h5_dataset(h5_file_path)
+    dataset = H5Dataset(h5_file_path)
 
     if debug_launch:
         train_part = 30

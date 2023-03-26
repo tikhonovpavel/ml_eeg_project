@@ -50,7 +50,7 @@ if args.config:
 else:
     print('No config specified')
 
-# Replace the config properties if the correspondig command lines are specified
+# Replace the config properties if the corresponding command lines are specified
 config.update({k: v for k, v in vars(args).items() if v is not None})  # {**args, **config}
 
 if config['predict_only']:
