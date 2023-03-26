@@ -17,10 +17,8 @@ import h5py
 
 import psutil
 import sys
-from CustomImageDataset import H5Dataset
+from CustomImageDataset import h5_dataset
 from predict_set import predict_set
-
-import wandb
 
 OPTIMIZERS_LIST = ('Adadelta', 'Adagrad', 'Adam', 'AdamW', 'SparseAdam', 'Adamax', 'ASGD', 'SGD', 'RAdam', 'Rprop',
                     'RMSprop', 'NAdam', 'LBFGS',)
@@ -28,30 +26,20 @@ LOSSES_LIST = ("CrossEntropyLoss", "BCELoss", "MSELoss", "L1Loss", "SmoothL1Loss
                 "TripletMarginLoss", "HingeEmbeddingLoss", "MultiMarginLoss", )
 DATE_FORMAT = '%Y-%m-%d_%H-%m-%S'
 
+weights = [1e-7, 1.]
+class_weights = torch.FloatTensor(weights).cuda()
 
-def start_training(h5_file_path, gamma, out_dir, log_path, train_part, model, loss_fn, learning_rate, epochs, batch_size, optimizer, debug_launch, use_wandb):
-    
-
-
+def start_training(h5_file_path, gamma, out_dir, log_path, train_part, model, loss_fn,
+                   learning_rate, epochs, batch_size, optimizer, model_name="None", set_size=10):
 
     generator = torch.Generator()
     generator.manual_seed(0)
 
-    dataset = H5Dataset(h5_file_path)
-
-    if debug_launch:
-        train_part = 30
-        test_part = 20
-        leftover = len(dataset) - train_part - test_part
-        train_dataset, test_dataset, _ = torch.utils.data.random_split(dataset,
-                                                                    [train_part, test_part, leftover],
-                                                                    generator=generator)
-
-    else:
-        train_part = round(len(dataset) * train_part)
-        train_dataset, test_dataset = torch.utils.data.random_split(dataset,
-                                                                    [train_part, len(dataset) - train_part],
-                                                                    generator=generator)
+    dataset = h5_dataset(h5_file_path)
+    train_part = round(len(dataset) * train_part)
+    train_dataset, test_dataset = torch.utils.data.random_split(dataset,
+                                                                [train_part, len(dataset) - train_part],
+                                                                generator=generator)
     print(
         f'Dataset {len(dataset)}\nTrain set : {train_part} images\nValidation set : {len(dataset) - train_part} images')
 
@@ -76,19 +64,34 @@ def start_training(h5_file_path, gamma, out_dir, log_path, train_part, model, lo
     device = "cuda:0" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu"
     print(f"Using {device} device")
 
+
     if model == 'Unet3D':
-        model = UNet3D(1, 1, final_sigmoid=False, f_maps=64, layer_order='cr',
-                 num_levels=4, is_segmentation=False, conv_padding=1).to(device)
+        model = UNet3D(1, 2, final_sigmoid=False, f_maps=64, layer_order='cr',
+                       num_levels=4, is_segmentation=True, conv_padding=1)    
     else:
-        model = VNet().to(device)
-    
+#       model = VNet(1, 1)
+        model = VNet(1, 2)
+        
+    if model_name != "None":
+        print("Loading checkpoint...")
+        checkpoint = torch.load(model_name)
+        model.load_state_dict(checkpoint, strict=False)
+
+    model = nn.DataParallel(model)
+    model = model.to(device)
     print(model)
 
     if loss_fn in LOSSES_LIST:
-        loss_fn = getattr(nn, loss_fn)()
+        if loss_fn in ["CrossEntropyLoss", "BCELoss"]:
+            loss_fn = getattr(nn, loss_fn)()
+            loss_fn.weight = class_weights
+
+        else:
+          loss_fn = getattr(nn, loss_fn)()
+
     else:
         raise NotImplementedError()
-
+        
     loss_fn = loss_fn.to(device)
 
     if optimizer in OPTIMIZERS_LIST:
@@ -100,73 +103,67 @@ def start_training(h5_file_path, gamma, out_dir, log_path, train_part, model, lo
 
     # logger inicialisation
     timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-
-
     # main train/val cycle
     for epoch in range(epochs):
         print('EPOCH {}:'.format(epoch + 1))
 
         # Make sure gradient tracking is on, and do a pass over the data
         model.train(True)
-        avg_loss = train_one_epoch(train_dataloader, model, optimizer, loss_fn, log_path, device, use_wandb)
+        avg_loss = train_one_epoch(train_dataloader, model, optimizer, loss_fn, log_path, device)
 
         scheduler.step()
         # We don't need gradients on to do reporting
         model.train(False)
 
         running_tloss = 0.
-        for batch, (tinputs, tlabels) in tqdm(enumerate(test_dataloader), total=len(test_dataloader)):
+        for batch, (tinputs, tlabels) in tqdm(enumerate(test_dataloader)):
             tinputs, tlabels = tinputs.to(torch.device(device)), tlabels.to(torch.device(device))
             tinputs = tinputs.float()
             with torch.no_grad():
                 toutputs = model(tinputs)
 
-            tloss = loss_fn(toutputs, tlabels.float())
+            tloss = loss_fn(toutputs, tlabels.long().squeeze())
+#           tloss = loss_fn(toutputs, tlabels)
+
             running_tloss += tloss
 
         avg_tloss = running_tloss / (batch + 1)
 
         print('LOSS train {} test {}'.format(avg_loss, avg_tloss))
 
-
         with open(log_path, 'a') as log:
             log.write(f'{avg_tloss}\n')
 
-        if True:#epoch % 10 == 9:
-            save_file_name = 'final_model_{}_{}.pt'.format(timestamp, epoch)
-
-            if use_wandb:
-                wandb.log({'save_file_name': save_file_name})
-
-            torch.save(model.state_dict(), os.path.join(out_dir, save_file_name))
+        if epoch % 10 == 9:
+            torch.save(model.state_dict(), os.path.join(out_dir, 'final_model_{}_{}.pt'.format(timestamp, epoch)))
 
     model_name = os.path.join(out_dir, 'final_model_{}_{}.pt'.format(timestamp, epoch))
     torch.save(model.state_dict(), model_name)
 
-    predict_set(train_dataloader, model_name, label, out_dir, set_size=set_size)
-    predict_set(test_dataloader, model_name, label, out_dir, set_size=set_size)
+
+    predict_set(train_dataloader, model_name, out_dir, set_size=set_size)
+    predict_set(test_dataloader, model_name, out_dir, set_size=set_size)
 
 
 # training function
-def train_one_epoch(dataloader, model, optimizer, loss_fn, log_path, device, use_wandb):
+def train_one_epoch(dataloader, model, optimizer, loss_fn, log_path, device):
     running_loss = 0.
     last_loss = 0.
 
-    for batch, (X, y) in tqdm(enumerate(dataloader), total=len(dataloader)):
+    for batch, (X, y) in tqdm(enumerate(dataloader)):
         X, y = X.to(torch.device(device)), y.to(torch.device(device))
         X = X.float()
 
         optimizer.zero_grad()
         outputs = model(X)
-
-        loss = loss_fn(outputs, y.float())
+        
+        loss = loss_fn(outputs, y.long().squeeze())
+#       loss = loss_fn(outputs, y)
+        
         loss.backward()
 
         optimizer.step()
         running_loss += loss.item()
-
-        if use_wandb:
-            wandb.log({'running_loss': running_loss, 'loss': loss.item()})
 
         if (batch + 1) % 100 == len(dataloader) % 100:
             last_loss = running_loss / (batch + 1)  # loss per batch
