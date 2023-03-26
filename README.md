@@ -17,7 +17,7 @@
 
    `python training_script.py --model "VNet" --model_name "checkpoint.h5" --out_dir "output" --predict_only 1`
    
-   `python visualize.pybb--model_name "checkpoint.h5"`
+   `python visualize.py --model_name "checkpoint.h5"`
 
 ## Train & test dataset
 
