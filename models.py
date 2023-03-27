@@ -242,9 +242,9 @@ class output(nn.Module):
 
 
 class VNet(nn.Module):
-    def __init__(self):
+    def __init__(self, in_channels, out_channels):
         super(VNet, self).__init__()
-        self.conv_1 = conv3d_x1(1, 16)
+        self.conv_1 = conv3d_x1(in_channels, 16)
         self.pool_1 = conv3d_as_pool(16, 32)
         self.conv_2 = conv3d_x2(32, 32)
         self.pool_2 = conv3d_as_pool(32, 64)
@@ -260,7 +260,7 @@ class VNet(nn.Module):
         self.deconv_2 = deconv3d_x2(128, 64)
         self.deconv_1 = deconv3d_x1(64, 32)
 
-        self.out = output(32, 1)
+        self.out = output(32, out_channels)
 
     def forward(self, x):
         conv_1 = self.conv_1(x)
