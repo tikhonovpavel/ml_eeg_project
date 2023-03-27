@@ -20,7 +20,7 @@ generator.manual_seed(0)
 
 h5_name = 'vnet_CrossEntropy_AUGMENTATION-2-4000-pred-epochs-300.h5'
 
-def predict_set(model, model_name, out_dir, label=None, set_size=799,
+def predict_set(model, model_name, out_dir, label=None, set_size,
                 predict_only="True", h5_file_path=None, train_part=0.8):
 
     if not os.path.exists(out_dir):
@@ -46,6 +46,7 @@ def predict_set(model, model_name, out_dir, label=None, set_size=799,
 #                   data = np.stack((input, pred, y_true), axis=0)
                     out_file.create_dataset(str(i), data=data,
                                shape=data.shape, dtype=np.float32)
+                    if i == set_size + 1: break
 
     def create_loaders(h5_file_path, train_part):
 
@@ -72,7 +73,9 @@ def predict_set(model, model_name, out_dir, label=None, set_size=799,
 
     if predict_only == "True":
         train_dataloader, test_dataloader = create_loaders(h5_file_path, train_part)
+        # Make predictions on train data
 #       predict(train_dataloader, model, 'train', out_dir)
+        # Make predictions on test data
         predict(test_dataloader, model, 'test', out_dir)
     else:
         predict(data_loader, model, label, out_dir)
