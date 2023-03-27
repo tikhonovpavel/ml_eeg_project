@@ -276,5 +276,4 @@ class VNet(nn.Module):
         deconv = self.deconv_3(conv_3, deconv)
         deconv = self.deconv_2(conv_2, deconv)
         deconv = self.deconv_1(conv_1, deconv)
-        deconv = nn.Softmax(deconv)
         return self.out(deconv)
