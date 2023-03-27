@@ -1,31 +1,21 @@
+import os
+import numpy as np
 import h5py
 import argparse
 
-
 parser = argparse.ArgumentParser()
 
-parser.add_argument("--filename", help="path to archived h5 file")
-parser.add_argument("--chunk_size", default=500)
+parser.add_argument("--h5_filename_to_unarchive", help="specify name of h5 archived dataset")
 args = parser.parse_args()
 
-h5_file = h5py.File(args.filename, 'r')
-dataset = h5_file.get('dense-162dip_parcell-64_GRID-64_paired_scale-False-2000')
+archive = h5py.File(args.h5_filename_to_unarchive, 'r')
+keys = list(archive.keys())
 
-chunk_size = 500
-nrows = dataset.shape[0]
-nchunks = (nrows - 1) // chunk_size + 1
+unarchived_file_name = args.h5_filename_to_unarchive.replace('.h5', '_unarch.h5')
 
-unarchived_file_name = args.filename.replace('.h5', '_unarch.h5')
-hf_unarchived = h5py.File(unarchived_file_name, 'w')
 
-unarchived_dataset = hf_unarchived.create_dataset('dense-162dip_parcell-64_GRID-64_paired_scale-False-2000',
-                                                  shape=dataset.shape, dtype=dataset.dtype)
-
-for i in range(nchunks):
-    start = i * chunk_size
-    end = min(start + chunk_size, nrows)
-    chunk = dataset[start:end]
-    unarchived_dataset[start:end] = chunk
-
-h5_file.close()
-hf_unarchived.close()
+with h5py.File(unarchived_file_name, 'w') as out_file:
+    for data_name in archive:
+        dataset = archive.get(data_name)
+        out_file.create_dataset(data_name, data=dataset,
+                                shape=dataset.shape, dtype=np.float32)
