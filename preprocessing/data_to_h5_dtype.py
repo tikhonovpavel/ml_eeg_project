@@ -1,36 +1,30 @@
-import random
 import os
 import numpy as np
 import h5py
+import argparse
 
-electrodes_dir = 'C:/Users/spaik/Documents/lab/ML_project/data/1.3.23_dense_dip/162-dip__ico2/Parcellation_64-lbl/train/GRID-64/paired_scale-False/AUGMENTATION-None/electrodes'
-dipoles_dir = 'C:/Users/spaik/Documents/lab/ML_project/data/1.3.23_dense_dip/162-dip__ico2/Parcellation_64-lbl/train/GRID-64/paired_scale-False/AUGMENTATION-None/dipoles'
+parser = argparse.ArgumentParser()
 
-data_size = 2000
-dataset_input_storage = []
-dataset_label_storage = []
+parser.add_argument("--dataset_size", type=int, default=4000, help="path to voxelized eeg files")
+parser.add_argument("--electrodes_dir", help="path to voxelized eeg files")
+parser.add_argument("--dipoles_dir", help="path to voxelized dipoles files")
+parser.add_argument("--h5_filename_to_save", help="specify name of h5 archived dataset")
+args = parser.parse_args()
 
-random.seed(10)
 
-counter = 0
-while counter < data_size:
-    img, label = random.choice(list(zip(os.listdir(electrodes_dir), os.listdir(dipoles_dir))))
-    with np.load(os.path.join(electrodes_dir, img)) as img:
-        image = np.expand_dims(img['arr_0'], axis=0)
-        dataset_input_storage.append(image)
-    with np.load(os.path.join(dipoles_dir, label)) as label:
-        image = np.expand_dims(label['arr_0'], axis=0)
-        dataset_label_storage.append(image)
-    counter +=1
+with h5py.File(args.h5_filename_to_save, 'w') as out_file:
+    for i, (img, label) in enumerate(list(zip(os.listdir(args.electrodes_dir), os.listdir(args.dipoles_dir)))):
+                
+        electrodes_npz = np.load(os.path.join(electrodes_dir, img))
+        electrodes = np.expand_dims(electrodes_npz['arr_0'], axis=0)
 
-dataset_input_storage = np.asarray(dataset_input_storage)
-dataset_label_storage = np.asarray(dataset_label_storage)
+        dipoles_npz =  np.load(os.path.join(dipoles_dir, label))
+        dipoles = np.expand_dims(dipoles_npz['arr_0'], axis=0)
 
-storage = np.concatenate((dataset_input_storage, dataset_label_storage), axis=1)
+        data = np.concatenate((electrodes, dipoles), axis=0)
+        data_name = img.split(".")[0]
 
-print('input + label storage shape: ' + str(storage.shape))
-
-# varying compression_opts from 1 to 9 you will increase the degree of archivation
-hf = h5py.File('dense-162dip_parcell-64_GRID-64_paired_scale-False-2000.h5', 'w')
-hf.create_dataset('dense-162dip_parcell-64_GRID-64_paired_scale-False-2000', data=storage, compression="gzip", compression_opts=1)
-hf.close()
+        out_file.create_dataset(data_name, data=data,
+                                shape=data.shape, dtype=np.float32, compression="gzip")
+        
+        if i+1 == args.dataset_size: break
