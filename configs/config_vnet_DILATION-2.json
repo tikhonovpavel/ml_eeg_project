@@ -11,5 +11,6 @@
     "optimizer": "Adam",
     "train_part": 0.8,
     "decay": 0.0001,
+    "predict_only": "False",
     "model_name": "/gpfs/data/gpfs0/victor.kozhevnikov/train-162-dip_parcellation-64/checkpoints/VNet/CrossEntropyLoss/DILATION-2/4000/final_model_20230324_151404_169.pt",
 }
