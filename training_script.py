@@ -19,9 +19,10 @@ parser = argparse.ArgumentParser(description='A script that takes in arguments f
 parser.add_argument('--config', type=str, help='Path to the config file')
 
 parser.add_argument('--experiment_description', type=str, help='Human readable description of the experiment')
-parser.add_argument('--h5_file_path', type=str, help='Path to the h5 file (faster to use unarchived)')
+parser.add_argument('--h5_file_path', type=str, help='Path to the unarchived h5 file')
 parser.add_argument('--out_dir', type=str, help='Path to the output directory')
 parser.add_argument('--log_dir', type=str, help='Path to the log directory')
+
 parser.add_argument('--model', type=str, help='CNN architecture')
 parser.add_argument('--loss_fn', type=str, help='Type of loss function')
 parser.add_argument('--learning_rate', type=float, help='Learning rate for the optimizer')
@@ -31,10 +32,11 @@ parser.add_argument('--epochs', type=float, help='Number of epochs')
 parser.add_argument('--batch_size', type=int, help='Batch size for training')
 parser.add_argument('--optimizer', type=str, help='Type of optimizer')
 parser.add_argument('--decay', type=float, help='Decay rate for the optimizer')
-parser.add_argument('--data_limit', type=float, help='Dataset volume')
+
+parser.add_argument('--predict_only', type=lambda x:bool(strtobool(x)), default=False, nargs='?', help='Perform only prediction')
+parser.add_argument('--model_name', type=str, help='Path to saved model checkpoint')
 parser.add_argument('--set_size', type=int, help='How many images to predict as examples')
-parser.add_argument('--predict_only', type=lambda x:bool(strtobool(x)), nargs='?', help='Perform only prediction')
-parser.add_argument('--model_name', type=str, help='Saved model checkpoint')
+
 parser.add_argument('--debug_launch', type=lambda x: bool(strtobool(x)), default=False, help='Set to true for debugging')
 parser.add_argument('--use_wandb', type=lambda x: bool(strtobool(x)), default=False, help='Set to true to enable wandb logging')
 
@@ -53,7 +55,7 @@ else:
 # Replace the config properties if the corresponding command lines are specified
 config.update({k: v for k, v in vars(args).items() if v is not None})  # {**args, **config}
 
-if config['predict_only']:
+if config['predict_only'] == True:
     prediction_func_signature = inspect.signature(predict_set)
     filtered_config = {k: config[k] for k in prediction_func_signature.parameters.keys() if k in config.keys()}
     predict_set(**filtered_config)
