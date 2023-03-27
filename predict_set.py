@@ -18,7 +18,7 @@ generator = torch.Generator()
 generator.manual_seed(0)
 
 
-h5_name = 'vnet_CrossEntropy_AUGMENTATION-2-4000-pred-epochs-300.h5'
+h5_name = 'vnet_CrossEntropy_predictions.h5'
 
 def predict_set(model, model_name, out_dir, label=None, set_size,
                 predict_only="True", h5_file_path=None, train_part=0.8):
