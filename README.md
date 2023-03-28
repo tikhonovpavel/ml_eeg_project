@@ -17,7 +17,7 @@ materials/presentation_3D CNN for inverse EEG problem.pdf
 
   `python preprocessing\unarchive_h5.py --h5_filename_to_unarchive "dense-162dip_parcell-64_GRID-64_paired_scale-False_DILATION-None-4000.h5"`    
 
-  `python training_script.py --model "VNet" --model_name "VNet_trained_CrossEntropy_DILATION-None-4000_epoch-120.pt" --h5_file_path "dense-162dip_parcell-64_GRID-64_paired_scale-False_DILATION-None-4000.h5" --out_dir "output" --predict_only 1`
+  `python training_script.py --model "VNet" --model_name "VNet_trained_CrossEntropy_DILATION-None-4000_epoch-120.pt" --h5_file_path "dense-162dip_parcell-64_GRID-64_paired_scale-False_DILATION-None-4000_unarch.h5" --out_dir "output" --predict_only 1`
    
   `python plot/visualize.py --model_name "output/vnet_CrossEntropy_prediction.h5"`
 
