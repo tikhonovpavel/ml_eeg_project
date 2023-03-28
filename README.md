@@ -28,3 +28,30 @@ Download:
 Unarchive:
 
 `python preprocessing/unarchive_h5.py --filename "dense-162dip_parcell-64_GRID-64_paired_scale-False-2000.h5"`
+
+## Repository structure
+``` bash
+EEG ML Project
+├── report  # report deliverables
+│   ├── presentation.pdf
+│   └── report.pdf
+├── plot
+│   └── visualize.py
+├── predictor  # contains models schemes and neutron files
+│   └── buildingblocks.py # realization of UNet architecture on pytorch
+├── configs  # different run configs
+│   └── config_vnet_DILATION-2-predict.json  # 
+│   └── config_vnet_DILATION-2.json  # 
+│   └── config_vnet_DILATION-None-predict.json  # 
+│   └── config_vnet_DILATION-None.json  # 
+├── preprocessing
+│   ├── coords_to_voxels.ipynb  # 
+│   ├── data_to_h5_dtype.py  # 
+│   └── unarchive_h5.py  # unarchives the dataset in h5 format
+├── CustomImageDataset.py  #
+├── metric_for_dataset.ipynb  # calcules the metric of the model preiction
+├── models.py  #
+├── predict_set.py  #
+├── requirements.txt
+└── README.md
+```
