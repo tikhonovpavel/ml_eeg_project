@@ -20,8 +20,8 @@ generator.manual_seed(0)
 
 h5_name = 'vnet_CrossEntropy_predictions.h5'
 
-def predict_set(model, model_name, out_dir, label=None, set_size,
-                predict_only="True", h5_file_path=None, train_part=0.8):
+def predict_set(model, model_name, out_dir, label=None, set_size=10,
+                predict_only="True", data_loader=None, h5_file_path=None, train_part=0.8):
 
     if not os.path.exists(out_dir):
         os.makedirs(out_dir)
@@ -74,7 +74,7 @@ def predict_set(model, model_name, out_dir, label=None, set_size,
     if predict_only == "True":
         train_dataloader, test_dataloader = create_loaders(h5_file_path, train_part)
         # Make predictions on train data
-#       predict(train_dataloader, model, 'train', out_dir)
+        predict(train_dataloader, model, 'train', out_dir)
         # Make predictions on test data
         predict(test_dataloader, model, 'test', out_dir)
     else:
