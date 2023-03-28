@@ -41,7 +41,7 @@ EEG ML Project
 ├── plot
 │   └── visualize.py
 ├── predictor  # contains models schemes and neutron files
-├── ├── utils.py  # 
+│   ├── utils.py  # 
 │   └── buildingblocks.py # realization of UNet architecture on pytorch
 ├── configs  # different run configs
 │   ├── config_vnet_DILATION-2-predict.json  # 
