@@ -71,7 +71,7 @@ def predict_set(model, model_name, out_dir, label=None, set_size=10,
     model.load_state_dict(checkpoint, strict=False)
     model = model.to(torch.device('cuda:0'))
 
-    if predict_only == "True":
+    if predict_only:
         train_dataloader, test_dataloader = create_loaders(h5_file_path, train_part)
         # Make predictions on train data
         predict(train_dataloader, model, 'train', out_dir)

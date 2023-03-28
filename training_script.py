@@ -10,7 +10,6 @@ from predict_set import predict_set
 import sys
 
 import wandb
-    
 
 # Create the parser
 parser = argparse.ArgumentParser(description='A script that takes in arguments from the command line or a config file.')
@@ -33,7 +32,7 @@ parser.add_argument('--batch_size', type=int, help='Batch size for training')
 parser.add_argument('--optimizer', type=str, help='Type of optimizer')
 parser.add_argument('--decay', type=float, help='Decay rate for the optimizer')
 
-parser.add_argument('--predict_only', type=lambda x:bool(strtobool(x)), nargs='?', help='Perform only prediction')
+parser.add_argument('--predict_only', type=lambda x: bool(strtobool(x)), nargs='?', help='Perform only prediction')
 parser.add_argument('--model_name', type=str, help='Path to saved model checkpoint')
 parser.add_argument('--set_size', type=int, help='How many images to predict as examples')
 
@@ -54,13 +53,14 @@ else:
 
 # Replace the config properties if the corresponding command lines are specified
 config.update({k: v for k, v in vars(args).items() if v is not None})  # {**args, **config}
+# print('config:',config)
 
-if config['predict_only'] == "True":
+if config['predict_only']:
     prediction_func_signature = inspect.signature(predict_set)
     filtered_config = {k: config[k] for k in prediction_func_signature.parameters.keys() if k in config.keys()}
     predict_set(**filtered_config)
     sys.exit()
-    
+
 if not os.path.exists(config['log_dir']):
     os.makedirs(config['log_dir'])
 
@@ -87,11 +87,7 @@ with open(config['log_path'], 'a') as log:
         log.write(f'{k}: {v}\n')
     log.write('-' * 50 + '\n')
 
-
 if config['use_wandb']:
     wandb.init(project='ml-eeg', config=config)
 
-
 start_training(**filtered_config)
-
-

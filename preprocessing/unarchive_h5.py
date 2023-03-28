@@ -1,7 +1,8 @@
-import os
 import numpy as np
 import h5py
 import argparse
+from tqdm import tqdm
+
 
 parser = argparse.ArgumentParser()
 
@@ -15,7 +16,7 @@ unarchived_file_name = args.h5_filename_to_unarchive.replace('.h5', '_unarch.h5'
 
 
 with h5py.File(unarchived_file_name, 'w') as out_file:
-    for data_name in archive:
+    for data_name in tqdm(archive):
         dataset = archive.get(data_name)
         out_file.create_dataset(data_name, data=dataset,
                                 shape=dataset.shape, dtype=np.float32)

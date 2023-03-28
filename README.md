@@ -7,17 +7,20 @@
 ## How to run
 * Load model weights and sample set:
 
-    `gdown --id ...`
+    `gdown --id 1RlA_DInYxlvsQuDimHUYvtadrlnXrQgx`
 
-    `gdown --id ...`
+    `gdown --id 1T_IpJMqIh78x4rSrQBiFZLz65-0pPk_-`
 
 * Run the script for prediction:
    
-   `mkdir output`      
+  `mkdir output`
 
-   `python training_script.py --model "VNet" --model_name "checkpoint.h5" --out_dir "output" --predict_only 1`
+  `python preprocessing\unarchive_h5.py --h5_filename_to_unarchive "dense-162dip_parcell-64_GRID-64_paired_scale-False_DILATION-None-4000.h5"`    
+
+  `python training_script.py --model "VNet" --model_name "VNet_trained_CrossEntropy_DILATION-None-4000_epoch-120.pt" --h5_file_path "dense-162dip_parcell-64_GRID-64_paired_scale-False_DILATION-None-4000.h5" --out_dir "output" --predict_only 1`
    
-   `python plot/visualize.py --model_name "checkpoint.h5"`
+  `python plot/visualize.py --model_name "output/vnet_CrossEntropy_prediction.h5"`
+
 
 ## Train & test dataset
 

@@ -9,7 +9,7 @@ augmented_data = False
 
 # Create the parser
 parser = argparse.ArgumentParser()
-parser.add_argument('--model_name', type=str, help='Saved model checkpoint')
+parser.add_argument('--path', type=str, help='Saved model checkpoint')
 parser.add_argument('--num_of_plots', type=int, default=3)
 parser.add_argument('--threshold', type=float, default=0.72)
 
