@@ -1,8 +1,8 @@
 # EEG ML Project
 ## Report & presentation
-'materials/article_3D CNNs as solution for inverse EEG problem (Machine Learning 2023 Course.pdf'
+`materials/article_3D CNNs as solution for inverse EEG problem (Machine Learning 2023 Course.pdf`
 
-'materials/presentation_3D CNN for inverse EEG problem.pdf'
+`materials/presentation_3D CNN for inverse EEG problem.pdf`
 
 ## How to run
 * Load model weights and sample set:
